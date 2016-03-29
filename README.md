@@ -23,4 +23,5 @@ with the packet structure defined by the GWAP protocol.
 
 * [panStamp NRG - Wiki page](https://github.com/panStamp/panstamp/wiki/panStamp%20NRG%202.-Technical%20details)
 * [Global Wireless Abstract Protocol (GWAP)](https://github.com/panStamp/gwap)
+* [GWAP modem application](https://github.com/panStamp/panstamp_sketches/tree/master/gwapmodem)
 
