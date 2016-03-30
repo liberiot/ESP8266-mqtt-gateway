@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 panStamp <contact@panstamp.com>
+ * Copyright (c) 2016 LIBERiot/panStamp <dberenguer@panstamp.com>
  * 
  * This file is part of the panStamp project.
  * 
@@ -22,10 +22,26 @@
  * Creation date: 03/16/2016
  */
 
+#ifndef _WIFI_H
+#define _WIFI_H
+
+/**
+ * Pseudo-EEPROM addresses
+ */
+#define EEPROM_MAX_PARAM_LENGTH  64
+#define EEPROM_WIFI_SSID  0
+#define EEPROM_WIFI_PWD   EEPROM_MAX_PARAM_LENGTH
+
 /**
  * Wifi settings
- * Enter here your SSID and password
  */
-const char* ssid     = "*******";
-const char* password = "************";
+char ssid[EEPROM_MAX_PARAM_LENGTH];
+char password[EEPROM_MAX_PARAM_LENGTH];
+
+/**
+ * Default Access Point settings
+ */
+const char apPassword[] = "liberiot";
+const char apName[] = "LIBERiot WiFi gateway";
+#endif
 

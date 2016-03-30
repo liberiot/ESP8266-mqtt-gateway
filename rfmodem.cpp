@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 panStamp <contact@panstamp.com>
+ * Copyright (c) 2016 LIBERiot/panStamp <dberenguer@panstamp.com>
  * 
  * This file is part of the panStamp project.
  * 

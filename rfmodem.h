@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 panStamp <contact@panstamp.com>
+ * Copyright (c) 2016 LIBERiot/panStamp <dberenguer@panstamp.com>
  * 
  * This file is part of the panStamp project.
  * 
@@ -19,7 +19,7 @@
  * USA
  * 
  * Author: Daniel Berenguer
- * Creation date: 01/02/2016
+ * Creation date: 03/16/2016
  */
 
 #ifndef _RFMODEM_H

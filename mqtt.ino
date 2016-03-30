@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 panStamp <contact@panstamp.com>
+ * Copyright (c) 2016 LIBERiot/panStamp <dberenguer@panstamp.com>
  * 
  * This file is part of the panStamp project.
  * 
@@ -53,6 +53,10 @@ void mqttConnect(void)
 
 void mqttReconnect()
 {
+  // Skip whilst in WiFi AP mode
+  if (apMode)
+    return;
+    
   // Loop until we're reconnected
   while (!client.connected())
   {

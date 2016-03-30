@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 panStamp <contact@panstamp.com>
+ * Copyright (c) 2016 LIBERiot/panStamp <dberenguer@panstamp.com>
  * 
  * This file is part of the panStamp project.
  * 
@@ -30,7 +30,7 @@ String webString="";
 
 void handle_root()
 {
-  server.send(200, "text/plain", "Navigate with /[DEVICE ADDRESS]/[ENDPOINT NAME]");
+  server.send(200, "text/plain", "Enter network settings with /setnet?ssid=[ssid]&pwd=[pwd]");
   delay(100);
 }
 
@@ -38,12 +38,10 @@ void initWebServer(void)
 {
   server.on("/", handle_root);
 
-/*
-  server.on("/status", []()
+  server.on("/setnet", []()
   {
-    processStatusRequest();
+    setNetwork();
   });
-*/
 
   server.begin();
 }
@@ -57,47 +55,35 @@ void httpHandle(void)
 }
 
 /**
- * processStatusRequest
+ * setNetwork
  * 
  * Process status request
  */
- /*
-void processStatusRequest(void)
+void setNetwork(void)
 {
+  uint8_t i;
   webString = "Request not supported";
   
   if (server.args() == 2)
   {
     char value[64], buf[7];
   
-    if (server.argName(0) == "addr")
+    if (server.argName(0) == "ssid")
     {
       if (server.arg(0).length() > 0)
       {
-        uint8_t addr = (uint8_t) server.arg(0).toInt();
-        // Search device
-        DEVICE *device = swap.getDevice(addr);
-      
-        if (device == NULL)
+        if (server.argName(1) == "pwd")
         {
-            webString = "Device " + addr;
-            webString += " not found";
-        }
-        else
-        {
-          if (server.argName(1) == "endp")
+          if (server.arg(1).length() > 0)
           {
-            if (server.arg(1).length() > 0)
-            {
-              char epName[32];
-              server.arg(1).toCharArray(epName, sizeof(server.arg(1)));
-              if (device->getValue(value, epName))
-              {
-                String str(value);
-                server.send(200, "text/plain", str);
-                return;
-              }
-            }
+            // Update global variables
+            server.arg(0).toCharArray(ssid, sizeof(ssid));
+            server.arg(1).toCharArray(password, sizeof(password));
+            // Save config in EEPROM
+            writeConfigToEeprom(ssid, password);            
+            String str = "OK";
+            server.send(200, "text/plain", str);
+            return;
           }
         }
       }
@@ -106,5 +92,4 @@ void processStatusRequest(void)
 
   server.send(200, "text/plain", webString);
 }
-*/
 

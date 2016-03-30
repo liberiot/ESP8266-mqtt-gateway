@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 panStamp <contact@panstamp.com>
+ * Copyright (c) 2016 LIBERiot/panStamp <dberenguer@panstamp.com>
  * 
  * This file is part of the panStamp project.
  * 
@@ -24,6 +24,7 @@
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
+#include <EEPROM.h>
 #include "wifi.h"
 #include "rfmodem.h"
 
@@ -56,6 +57,20 @@ const char* description = "MQTT-GWAP gateway";
 // Wifi client
 WiFiClient espClient;
 
+// If true, enter Wifi AP mode
+bool enterApMode = false;
+bool apMode = false;
+
+/**
+ * enterWifiApMode
+ * 
+ * Enter WiFi AP mode
+ */
+void enterWifiApMode(void)
+{
+  enterApMode = true;
+}
+
 /**
  * Main setup function
  */
@@ -65,71 +80,84 @@ void setup()
   pinMode(MODEM_RESET_LINE, OUTPUT);
   digitalWrite(MODEM_RESET_LINE, LOW);
 
+  // ESP8266 GPIO0 pin
+  pinMode(0, INPUT_PULLUP);
+  attachInterrupt(0, enterWifiApMode, FALLING);
+
   // Config LED outputs
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
-  
+
+  // Config pseudo-EEPROM space
+  EEPROM.begin(512);
+
   #ifdef DEBUG_ENABLED
   Serial.begin(38400);
   #endif
-  
-  // Connect to WiFi network
-  WiFi.begin(ssid, password);
 
-  #ifdef DEBUG_ENABLED
-  Serial.print("\n\r \n\rWorking to connect");
-  #endif
-
-  // Wait for connection
-  while (WiFi.status() != WL_CONNECTED)
+  // Read Wifi config from EEPROM
+  if (readConfigFromEeprom())
   {
-    digitalWrite(LED1, !digitalRead(LED1));
-    delay(500);
+    // Connect to WiFi network
+    WiFi.begin(ssid, password);
 
     #ifdef DEBUG_ENABLED
-    Serial.print(".");
+    Serial.print("\n\r \n\rWorking to connect");
     #endif
-  }
-  digitalWrite(LED1, LOW);
   
-  #ifdef DEBUG_ENABLED
-  Serial.println("");
-  Serial.println("esp-io Web Server");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-  #endif
+    // Wait for connection
+    while ((WiFi.status() != WL_CONNECTED) && !enterApMode)
+    {
+      digitalWrite(LED1, !digitalRead(LED1));
+      delay(500);
+  
+      #ifdef DEBUG_ENABLED
+      Serial.print(".");
+      #endif
+    }
+    digitalWrite(LED1, LOW);
 
-  // Connect to MQTT server
-  mqttConnect();
-  mqttHandle();
-
-  // Initialize web interface
-  initWebServer();  
-
-  #ifdef DEBUG_ENABLED
-  Serial.print("Opening modem");
-  #endif
-
-  // Reset modem
-  Serial.end();
-  digitalWrite(MODEM_RESET_LINE, HIGH);
-  delay(1000);
-  Serial.begin(38400);
-   
-  // Start conversations with modem
-  modem.begin();
+    if (WiFi.status() == WL_CONNECTED)
+    {
+      #ifdef DEBUG_ENABLED
+      Serial.println("");
+      Serial.println(apName);
+      Serial.print("Connected to ");
+      Serial.println(ssid);
+      Serial.print("IP address: ");
+      Serial.println(WiFi.localIP());
+      #endif
+    
+      // Connect to MQTT server
+      mqttConnect();
+      mqttHandle();
+    
+      // Initialize web interface
+      initWebServer();  
+    
+      #ifdef DEBUG_ENABLED
+      Serial.print("Opening modem");
+      #endif
+    
+      // Reset modem
+      Serial.end();
+      digitalWrite(MODEM_RESET_LINE, HIGH);
+      delay(1000);
+      Serial.begin(38400);
+       
+      // Start conversations with modem
+      modem.begin();
+    }
+  }
+  else
+    enterApMode = true;
 }
 
 /**
  * Endless loop
  */
 void loop()
-{
-  mqttHandle();
-  httpHandle();
-  
+{ 
   if (modem.available())
   {
     if (modem.check())
@@ -145,5 +173,102 @@ void loop()
       }
     }
   }
+  else if (enterApMode)
+  {
+    #ifdef DEBUG_ENABLED
+    Serial.println("Entering AP mode");
+    #endif
+    enterApMode = false;
+    apMode = true;
+    setupWiFiAP();
+    initWebServer();
+    digitalWrite(LED2, HIGH);
+  }
+  else
+  {
+    mqttHandle();
+    httpHandle();
+  }
+}
+
+/**
+ * setupWiFiAP
+ * 
+ * Setup wifi access point
+ */
+void setupWiFiAP()
+{
+  WiFi.mode(WIFI_AP);
+  
+  // Append last two bytes of the MAC to the SSID
+  uint8_t mac[WL_MAC_ADDR_LENGTH];
+  WiFi.softAPmacAddress(mac);
+
+  sprintf(ssid, "%s %X%X", apName, mac[WL_MAC_ADDR_LENGTH - 2], mac[WL_MAC_ADDR_LENGTH - 1]);
+  WiFi.softAP(ssid, apPassword);
+}
+
+/**
+ * readConfigFromEeprom
+ *
+ * Read EEPROM contents and set global variables
+ * 
+ * @return true if config found. Return false otherwise
+ */
+bool readConfigFromEeprom(void)
+{
+  bool found = false;
+  
+  // Read config from EEPROM
+  // WiFi network SSID
+  for(int i=0 ; i<EEPROM_MAX_PARAM_LENGTH ; i++)
+  {
+    ssid[i] = EEPROM.read(EEPROM_WIFI_SSID + i);
+    if (ssid[i] == 0)
+    {
+      found = true;
+      break;
+    }
+  }
+
+  if (found)
+  {
+    found = false;
+    // WiFi password
+    for(int i=0 ; i<EEPROM_MAX_PARAM_LENGTH ; i++)
+    {
+      password[i] = EEPROM.read(EEPROM_WIFI_PWD + i);
+      if (password[i] == 0)
+      {
+        found = true;
+        break;
+      }
+    }
+  }
+  
+  return found;
+}
+
+/**
+ * writeConfigToEeprom
+ *
+ * Write Wifi config in EEPROM
+ * 
+ * @param wSsid : WiFi SSID
+ * @param wPwd : WiFi password
+ */
+void writeConfigToEeprom(char *wSsid, char *wPwd)
+{
+  uint8_t i;
+  
+  for(i=0 ; i<strlen(wSsid) ; i++)
+    EEPROM.write(EEPROM_WIFI_SSID + i, wSsid[i]);
+  EEPROM.write(EEPROM_WIFI_SSID + i, 0);
+
+  for(i=0 ; i<strlen(wPwd) ; i++)
+    EEPROM.write(EEPROM_WIFI_PWD + i, wPwd[i]);
+  EEPROM.write(EEPROM_WIFI_PWD + i, 0);
+
+  EEPROM.commit();
 }
 
