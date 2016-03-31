@@ -22,10 +22,14 @@
  * Creation date: 03/16/2016
  */
 
+/**
+ * Increase MQTT_MAX_PACKET_SIZE to 256 in PubSubClient.h
+ */
+
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <EEPROM.h>
-#include "wifi.h"
+#include "userdata.h"
 #include "rfmodem.h"
 
 /**
@@ -43,6 +47,11 @@
  */
 #define LED1    5
 #define LED2    4
+
+/**
+ * User config
+ */
+USERDATA config;
 
 /**
  *  RF modem object
@@ -88,18 +97,18 @@ void setup()
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
 
-  // Config pseudo-EEPROM space
-  EEPROM.begin(512);
+  // Initialize config (pseudo-EEPROM) space
+  config.begin();
 
   #ifdef DEBUG_ENABLED
   Serial.begin(38400);
   #endif
 
-  // Read Wifi config from EEPROM
-  if (readConfigFromEeprom())
+  // Read config from EEPROM
+  if (config.readConfig())
   {
     // Connect to WiFi network
-    WiFi.begin(ssid, password);
+    WiFi.begin(config.ssid, config.password);
 
     #ifdef DEBUG_ENABLED
     Serial.print("\n\r \n\rWorking to connect");
@@ -123,7 +132,7 @@ void setup()
       Serial.println("");
       Serial.println(apName);
       Serial.print("Connected to ");
-      Serial.println(ssid);
+      Serial.println(config.ssid);
       Serial.print("IP address: ");
       Serial.println(WiFi.localIP());
       #endif
@@ -204,71 +213,7 @@ void setupWiFiAP()
   uint8_t mac[WL_MAC_ADDR_LENGTH];
   WiFi.softAPmacAddress(mac);
 
-  sprintf(ssid, "%s %X%X", apName, mac[WL_MAC_ADDR_LENGTH - 2], mac[WL_MAC_ADDR_LENGTH - 1]);
-  WiFi.softAP(ssid, apPassword);
-}
-
-/**
- * readConfigFromEeprom
- *
- * Read EEPROM contents and set global variables
- * 
- * @return true if config found. Return false otherwise
- */
-bool readConfigFromEeprom(void)
-{
-  bool found = false;
-  
-  // Read config from EEPROM
-  // WiFi network SSID
-  for(int i=0 ; i<EEPROM_MAX_PARAM_LENGTH ; i++)
-  {
-    ssid[i] = EEPROM.read(EEPROM_WIFI_SSID + i);
-    if (ssid[i] == 0)
-    {
-      found = true;
-      break;
-    }
-  }
-
-  if (found)
-  {
-    found = false;
-    // WiFi password
-    for(int i=0 ; i<EEPROM_MAX_PARAM_LENGTH ; i++)
-    {
-      password[i] = EEPROM.read(EEPROM_WIFI_PWD + i);
-      if (password[i] == 0)
-      {
-        found = true;
-        break;
-      }
-    }
-  }
-  
-  return found;
-}
-
-/**
- * writeConfigToEeprom
- *
- * Write Wifi config in EEPROM
- * 
- * @param wSsid : WiFi SSID
- * @param wPwd : WiFi password
- */
-void writeConfigToEeprom(char *wSsid, char *wPwd)
-{
-  uint8_t i;
-  
-  for(i=0 ; i<strlen(wSsid) ; i++)
-    EEPROM.write(EEPROM_WIFI_SSID + i, wSsid[i]);
-  EEPROM.write(EEPROM_WIFI_SSID + i, 0);
-
-  for(i=0 ; i<strlen(wPwd) ; i++)
-    EEPROM.write(EEPROM_WIFI_PWD + i, wPwd[i]);
-  EEPROM.write(EEPROM_WIFI_PWD + i, 0);
-
-  EEPROM.commit();
+  sprintf(config.ssid, "%s %X%X", apName, mac[WL_MAC_ADDR_LENGTH - 2], mac[WL_MAC_ADDR_LENGTH - 1]);
+  WiFi.softAP(config.ssid, apPassword);
 }
 

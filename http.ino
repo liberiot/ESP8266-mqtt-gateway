@@ -23,6 +23,7 @@
  */
  
 #include <ESP8266WebServer.h>
+#include "userdata.h"
 
 // Web server
 ESP8266WebServer server(80);
@@ -30,7 +31,7 @@ String webString="";
 
 void handle_root()
 {
-  server.send(200, "text/plain", "Enter network settings with /setnet?ssid=[ssid]&pwd=[pwd]");
+  server.send(200, "text/plain", "Visit https://github.com/liberiot/ESP8266-mqtt-gateway for details");
   delay(100);
 }
 
@@ -43,6 +44,16 @@ void initWebServer(void)
     setNetwork();
   });
 
+  server.on("/setusr", []()
+  {
+    setUserData();
+  });
+  
+  server.on("/setgps", []()
+  {
+    setCoordinates();
+  });
+  
   server.begin();
 }
 
@@ -57,7 +68,7 @@ void httpHandle(void)
 /**
  * setNetwork
  * 
- * Process status request
+ * Set WiFi settings
  */
 void setNetwork(void)
 {
@@ -77,10 +88,89 @@ void setNetwork(void)
           if (server.arg(1).length() > 0)
           {
             // Update global variables
-            server.arg(0).toCharArray(ssid, sizeof(ssid));
-            server.arg(1).toCharArray(password, sizeof(password));
+            server.arg(0).toCharArray(config.ssid, sizeof(config.ssid));
+            server.arg(1).toCharArray(config.password, sizeof(config.password));
             // Save config in EEPROM
-            writeConfigToEeprom(ssid, password);            
+            config.saveWifiConfig();            
+            String str = "OK";
+            server.send(200, "text/plain", str);
+            return;
+          }
+        }
+      }
+    }
+  }    
+
+  server.send(200, "text/plain", webString);
+}
+
+/**
+ * setUserData
+ * 
+ * Set User and gateways keys
+ */
+void setUserData(void)
+{
+  uint8_t i;
+  webString = "Request not supported";
+  
+  if (server.args() == 2)
+  {
+    char value[64], buf[7];
+  
+    if (server.argName(0) == "user")
+    {
+      if (server.arg(0).length() > 0)
+      {
+        if (server.argName(1) == "gateway")
+        {
+          if (server.arg(1).length() > 0)
+          {
+            // Update global variables
+            server.arg(0).toCharArray(config.userKey, sizeof(config.userKey));
+            server.arg(1).toCharArray(config.gatewayKey, sizeof(config.gatewayKey));
+            // Save config in EEPROM
+            config.saveUserConfig();            
+            String str = "OK";
+            server.send(200, "text/plain", str);
+            return;
+          }
+        }
+      }
+    }
+  }    
+
+  server.send(200, "text/plain", webString);
+}
+
+
+/**
+ * setCoordinates
+ * 
+ * Set GPS position
+ */
+void setCoordinates(void)
+{
+  uint8_t i;
+  webString = "Request not supported";
+  
+  if (server.args() == 2)
+  {
+    char value[64], buf[7];
+  
+    if (server.argName(0) == "lat")
+    {
+      if (server.arg(0).length() > 0)
+      {
+        if (server.argName(1) == "lon")
+        {
+          if (server.arg(1).length() > 0)
+          {
+            // Update global variables
+            server.arg(0).toCharArray(config.latitude, sizeof(config.latitude));
+            server.arg(1).toCharArray(config.longitude, sizeof(config.longitude));
+            // Save config in EEPROM
+            config.saveGpsConfig();            
             String str = "OK";
             server.send(200, "text/plain", str);
             return;

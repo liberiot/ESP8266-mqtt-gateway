@@ -23,6 +23,7 @@
  */
 
 #include <PubSubClient.h>
+#include "userdata.h"
 
 /**
  * MQTT connection
@@ -36,21 +37,41 @@
 uint32_t hBeatTime = 0;
 const uint32_t hBeatPeriod = 60000; // Transmit heartbeat every 60 sec
 
-const char TOPIC_NETWORK[] = "liberiot/panStamp/workcenter/network";
-const char TOPIC_CONTROL[] = "panStamp/control";
-const char TOPIC_GATEWAY[] = "liberiot/panStamp/workcenter/gateway";
+/**
+ * MQTT topics
+ */
+const uint8_t TOPIC_LENGTH = sizeof(LIBERIOT_TOPIC_MAIN) + LIBERIOT_KEY_LENGTH * 2 + 10;
+char TOPIC_NETWORK[TOPIC_LENGTH];
+char TOPIC_CONTROL[TOPIC_LENGTH];
+char TOPIC_GATEWAY[TOPIC_LENGTH];
 
 // MQTT client
 PubSubClient client(espClient);
 
+/**
+ * Initialize MQTT topics
+ */
+void initTopics(void)
+{
+  sprintf(TOPIC_NETWORK, "%s/%s/%s/network", LIBERIOT_TOPIC_MAIN, config.userKey, config.gatewayKey);
+  sprintf(TOPIC_CONTROL, "%s/%s/%s/control", LIBERIOT_TOPIC_MAIN, config.userKey, config.gatewayKey);
+  sprintf(TOPIC_GATEWAY, "%s/%s/%s/gateway", LIBERIOT_TOPIC_MAIN, config.userKey, config.gatewayKey);
+}
+
+/**
+ * Connect to MQTT broker
+ */
 void mqttConnect(void)
 {
-  //client.setServer(mqtt_server, 1883); // Connect to MQTT broker
-  client.setServer("mqtt.liberiot.org", 3001); // Connect to MQTT broker
+  initTopics();  // Initialize MQTT topics
+  client.setServer(LIBERIOT_MQTT_BROKER, LIBERIOT_MQTT_PORT); // Connect to MQTT broker
   
   client.setCallback(mqttReceive);     // Call this function whenever a MQTT message is received
 }
 
+/**
+ * Reconnect to MQTT broker
+ */
 void mqttReconnect()
 {
   // Skip whilst in WiFi AP mode
@@ -71,13 +92,15 @@ void mqttReconnect()
       #ifdef DEBUG_ENABLED
       Serial.println("connected");
       #endif
-      
+
+      /*
       // Append "/#" at the end of the topic
       char topic[sizeof(TOPIC_CONTROL) + 2];
       sprintf(topic, "%s/#", TOPIC_CONTROL);
 
       // Subscribe to the main topic
-      client.subscribe(topic);      
+      client.subscribe(topic);
+      */
     }
     else
     {
