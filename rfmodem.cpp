@@ -141,30 +141,3 @@ bool RFMODEM::check(void)
   return false;
 }
 
-/**
- * write
- *
- * Send packet to serial modem
- *
- * @param buffer Buffer to be transmitted
- * @param len Buffer length
- *
- * @return amount of bytes transmitted
- */
-uint8_t RFMODEM::write(char *buffer, uint8_t len)
-{
-  int i;
-
-  for(i=0 ; i<len ; i++)
-  {
-    if (buffer[i] < 0x10)
-      Serial.print("0");
-
-    Serial.print(buffer[i], HEX);
-  }
-
-  Serial.println("");
-
-  return i;
-}
-

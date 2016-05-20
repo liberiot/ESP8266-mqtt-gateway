@@ -93,14 +93,12 @@ void mqttReconnect()
       Serial.println("connected");
       #endif
 
-      /*
       // Append "/#" at the end of the topic
       char topic[sizeof(TOPIC_CONTROL) + 2];
       sprintf(topic, "%s/#", TOPIC_CONTROL);
 
       // Subscribe to the main topic
       client.subscribe(topic);
-      */
     }
     else
     {
@@ -175,10 +173,9 @@ void mqttSend(char *buffer)
  * @param len message length
  */
 void mqttReceive(char* topic, byte* payload, unsigned int len)
-{  
-  //char *ptr1 = topic + sizeof(TOPIC_CONTROL);
-
-  modem.write((char*)payload, len/2);
+{
+  payload[len] = 0;  // terminate string
+  modem.write((char*)payload);
 }
 
 /**

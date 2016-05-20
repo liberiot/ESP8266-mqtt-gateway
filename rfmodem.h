@@ -144,12 +144,14 @@ class RFMODEM
      *
      * Send packet to serial modem
      *
-     * @param buffer Buffer to be transmitted
-     * @param len Buffer length
+     * @param buf Buffer to be transmitted
      *
      * @return amount of bytes transmitted
      */
-    uint8_t write(char *buffer, uint8_t len);
+    uint8_t write(char *buf)
+    {
+      Serial.println(buf);
+    }
 };
 
 #endif
