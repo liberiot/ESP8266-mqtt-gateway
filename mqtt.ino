@@ -92,6 +92,7 @@ void mqttReconnect()
       #ifdef DEBUG_ENABLED
       Serial.println("connected");
       #endif
+      client.publish(TOPIC_GATEWAY, "CONNECTED");
 
       // Append "/#" at the end of the topic
       char topic[sizeof(TOPIC_CONTROL) + 2];
@@ -131,7 +132,7 @@ void mqttHandle(void)
   uint32_t currentTime = millis();
   if (currentTime - hBeatTime > hBeatPeriod)
   {
-    client.publish(TOPIC_GATEWAY, "Running");
+    client.publish(TOPIC_GATEWAY, "RUNNING");
     hBeatTime = currentTime;
   }
     
