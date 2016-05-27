@@ -86,7 +86,7 @@ void mqttReconnect()
     #endif
     
     // Attempt to connect
-    if (client.connect(description)) // Anonymous connection to broker
+    if (client.connect(deviceId)) // Anonymous connection to broker
     //if (client.connect("ESP8266Client", mqtt_user, mqtt_password)) // Authenticated connection with broker
     {
       #ifdef DEBUG_ENABLED

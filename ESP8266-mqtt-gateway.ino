@@ -35,7 +35,7 @@
 /**
  * Debug option
  */
-#define DEBUG_ENABLED  1
+//#define DEBUG_ENABLED  1
 
 /**
  * Modem reset line
@@ -58,17 +58,17 @@ USERDATA config;
  */
 RFMODEM modem;
 
-/**
- * Description string
- */
-const char* description = "MQTT-GWAP gateway";
-
 // Wifi client
 WiFiClient espClient;
 
 // If true, enter Wifi AP mode
 bool enterApMode = false;
 bool apMode = false;
+
+/**
+ * Description string
+ */
+char deviceId[32];
 
 /**
  * enterWifiApMode
@@ -99,6 +99,11 @@ void setup()
 
   // Initialize config (pseudo-EEPROM) space
   config.begin();
+
+  // Append last two bytes of the MAC to the device ID
+  uint8_t mac[WL_MAC_ADDR_LENGTH];
+  WiFi.softAPmacAddress(mac);
+  sprintf(deviceId, "%s %X%X", apName, mac[WL_MAC_ADDR_LENGTH - 2], mac[WL_MAC_ADDR_LENGTH - 1]);
 
   #ifdef DEBUG_ENABLED
   Serial.begin(38400);
@@ -207,13 +212,7 @@ void loop()
  */
 void setupWiFiAP()
 {
-  WiFi.mode(WIFI_AP);
-  
-  // Append last two bytes of the MAC to the SSID
-  uint8_t mac[WL_MAC_ADDR_LENGTH];
-  WiFi.softAPmacAddress(mac);
-
-  sprintf(config.ssid, "%s %X%X", apName, mac[WL_MAC_ADDR_LENGTH - 2], mac[WL_MAC_ADDR_LENGTH - 1]);
-  WiFi.softAP(config.ssid, apPassword);
+  WiFi.mode(WIFI_AP);  
+  WiFi.softAP(deviceId, apPassword);
 }
 
