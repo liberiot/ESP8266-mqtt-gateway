@@ -62,7 +62,7 @@ RFMODEM modem;
 WiFiClient espClient;
 
 // If true, enter Wifi AP mode
-bool enterApMode = false;
+volatile bool enterApMode = false;
 bool apMode = false;
 
 /**
@@ -105,9 +105,7 @@ void setup()
   WiFi.softAPmacAddress(mac);
   sprintf(deviceId, "%s %X%X", apName, mac[WL_MAC_ADDR_LENGTH - 2], mac[WL_MAC_ADDR_LENGTH - 1]);
 
-  #ifdef DEBUG_ENABLED
   Serial.begin(38400);
-  #endif
 
   // Read config from EEPROM
   if (config.readConfig())
@@ -120,7 +118,7 @@ void setup()
     #endif
   
     // Wait for connection
-    while ((WiFi.status() != WL_CONNECTED) && !enterApMode)
+    while ((WiFi.status() != WL_CONNECTED) && (!enterApMode))
     {
       digitalWrite(LED1, !digitalRead(LED1));
       delay(500);
@@ -128,7 +126,10 @@ void setup()
       #ifdef DEBUG_ENABLED
       Serial.print(".");
       #endif
+
+      Serial.print("");  // Keep this blank character printing to make this loop work!!
     }
+
     digitalWrite(LED1, LOW);
 
     if (WiFi.status() == WL_CONNECTED)
