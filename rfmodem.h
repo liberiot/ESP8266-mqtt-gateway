@@ -150,6 +150,7 @@ class RFMODEM
      */
     uint8_t write(char *buf)
     {
+      Serial.flush();
       Serial.println(buf);
     }
 };
