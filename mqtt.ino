@@ -173,7 +173,7 @@ void mqttSend(char *buffer)
  * @param payload message
  * @param len message length
  */
-void mqttReceive(char* topic, byte* payload, unsigned int len)
+void mqttReceive(char* topic, uint8_t* payload, unsigned int len)
 {
   payload[len] = 0;  // terminate string
   modem.write((char*)payload);
