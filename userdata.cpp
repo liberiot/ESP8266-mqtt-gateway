@@ -85,22 +85,7 @@ bool USERDATA::readUserConfig(void)
       break;
     }
   }
-
-  if (found)
-  {
-    found = false;
-    // Gateway key
-    for(int i=0 ; i<LIBERIOT_KEY_LENGTH ; i++)
-    {
-      gatewayKey[i] = EEPROM.read(EEPROM_GATEWAY_KEY + i);
-      if (gatewayKey[i] == 0)
-      {
-        found = true;
-        break;
-      }
-    }
-  }
-  
+ 
   return found;
 }
 
@@ -176,10 +161,6 @@ void USERDATA::saveUserConfig(void)
   for(i=0 ; i<strlen(userKey) ; i++)
     EEPROM.write(EEPROM_USER_KEY + i, userKey[i]);
   EEPROM.write(EEPROM_USER_KEY + i, 0);
-
-  for(i=0 ; i<strlen(gatewayKey) ; i++)
-    EEPROM.write(EEPROM_GATEWAY_KEY + i, gatewayKey[i]);
-  EEPROM.write(EEPROM_GATEWAY_KEY + i, 0);
 
   EEPROM.commit();
 }
