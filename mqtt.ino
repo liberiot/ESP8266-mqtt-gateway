@@ -48,6 +48,9 @@ char TOPIC_GATEWAY[TOPIC_LENGTH];
 // MQTT client
 PubSubClient client(espClient);
 
+// First MQTT connection
+bool firstMqttConnect = true;
+
 /**
  * Initialize MQTT topics
  */
@@ -92,7 +95,19 @@ void mqttReconnect()
       #ifdef DEBUG_ENABLED
       Serial.println("connected");
       #endif
+      
       client.publish(TOPIC_GATEWAY, "CONNECTED");
+
+      if (firstMqttConnect)
+      {
+        char topic[MAX_MQTT_TOPIC_LENGTH];
+        char msg[64];
+        firstMqttConnect = false;
+        // Message topic
+        sprintf(topic, "%s/coord", TOPIC_GATEWAY);
+        sprintf(msg, "%s, %s", config.latitude, config.longitude);
+        client.publish(topic, msg);
+      }
 
       // Append "/#" at the end of the topic
       char topic[sizeof(TOPIC_CONTROL) + 2];
