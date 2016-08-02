@@ -18,9 +18,9 @@ http://192.168.4.1/setnet?ssid=your_ssid&pwd=your_password
 
 ## LIBERiot register
 
-In order to register gateways against LIBERiot each user needs a user key and a unique key for every gateway. Unique keys can be requested from liberiot.org anytime. After getting unique keys for both the user and the gateway, they need to be entered into the gateway by means of the following HTTP GET command:
+In order to register gateways and devices against LIBERiot each user needs a user key. User keys are automatically generated when creating an account from red.liberiot.org. After getting the user key, it needs to be entered into the gateway by means of the following HTTP GET command:
 
-http://192.168.4.1/setusr?user=your_user_key&gateway=your_gateway_key
+http://192.168.4.1/setusr?userkey=your_user_key
 
 Users also need to set the location of the gateway as follows:
 

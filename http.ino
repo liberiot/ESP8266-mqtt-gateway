@@ -114,28 +114,21 @@ void setUserData(void)
   uint8_t i;
   webString = "Request not supported";
   
-  if (server.args() == 2)
+  if (server.args() == 1)
   {
     char value[64], buf[7];
   
-    if (server.argName(0) == "user")
+    if (server.argName(0) == "userkey")
     {
       if (server.arg(0).length() > 0)
       {
-        if (server.argName(1) == "gateway")
-        {
-          if (server.arg(1).length() > 0)
-          {
-            // Update global variables
-            server.arg(0).toCharArray(config.userKey, sizeof(config.userKey));
-            server.arg(1).toCharArray(config.gatewayKey, sizeof(config.gatewayKey));
-            // Save config in EEPROM
-            config.saveUserConfig();            
-            String str = "OK";
-            server.send(200, "text/plain", str);
-            return;
-          }
-        }
+        // Update global variables
+        server.arg(0).toCharArray(config.userKey, sizeof(config.userKey));
+        // Save config in EEPROM
+        config.saveUserConfig();            
+        String str = "OK";
+        server.send(200, "text/plain", str);
+        return;
       }
     }
   }    
