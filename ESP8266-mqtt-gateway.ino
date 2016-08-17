@@ -100,15 +100,14 @@ void setup()
   // Initialize config (pseudo-EEPROM) space
   config.begin();
 
-  // Append last two bytes of the MAC to the device ID
+  // Get MAC
   uint8_t mac[WL_MAC_ADDR_LENGTH];
   WiFi.softAPmacAddress(mac);
-  sprintf(deviceId, "%s %X%X", apName, mac[WL_MAC_ADDR_LENGTH - 2], mac[WL_MAC_ADDR_LENGTH - 1]);
 
   char buf[3];
   // Set Gateway ID from MAC address
   memset((uint8_t*)config.gatewayKey, 0, sizeof(config.gatewayKey));
-  for(int i; i<WL_MAC_ADDR_LENGTH ; i++)
+  for(int i=0; i<WL_MAC_ADDR_LENGTH ; i++)
   {
     if (mac[i] < 0x10)
       sprintf(buf, "0%X", mac[i]);
@@ -119,6 +118,10 @@ void setup()
     config.gatewayKey[i*2+1] = buf[1];
   }
 
+  // Set device ID
+  sprintf(deviceId, "%s %s", apName, gatewayKey);
+
+  // Init UART
   Serial.begin(38400);
 
   // Read config from EEPROM

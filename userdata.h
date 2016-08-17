@@ -27,8 +27,20 @@
 
 #include <EEPROM.h>
 
+/**
+ * MQTT connection
+ */
+#define mqtt_user "your_username"
+#define mqtt_password "your_password"
+
+#define MAX_MQTT_TOPIC_LENGTH  128   // Max topic length
+
+/**
+ * LIBERIOT constant definition
+ */
 #define LIBERIOT_KEY_LENGTH    32
 #define GPS_CCORDINATE_LENGTH  24
+const uint32_t hBeatPeriod = 60000; // Transmit heartbeat every 60 sec
 
 /**
  * Pseudo-EEPROM addresses

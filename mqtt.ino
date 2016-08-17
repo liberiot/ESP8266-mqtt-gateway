@@ -25,17 +25,9 @@
 #include <PubSubClient.h>
 #include "userdata.h"
 
-/**
- * MQTT connection
- */
-#define mqtt_user "your_username"
-#define mqtt_password "your_password"
-
-#define MAX_MQTT_TOPIC_LENGTH  128   // Max topic length
 
 // Last time this gateway sent a periodic heartbeat
 uint32_t hBeatTime = 0;
-const uint32_t hBeatPeriod = 60000; // Transmit heartbeat every 60 sec
 
 /**
  * MQTT topics
@@ -90,7 +82,7 @@ void mqttReconnect()
     
     // Attempt to connect
     if (client.connect(deviceId)) // Anonymous connection to broker
-    //if (client.connect("ESP8266Client", mqtt_user, mqtt_password)) // Authenticated connection with broker
+    //if (client.connect(deviceId, mqtt_user, mqtt_password)) // Authenticated connection with broker
     {
       #ifdef DEBUG_ENABLED
       Serial.println("connected");
@@ -125,13 +117,12 @@ void mqttReconnect()
       #endif
       
       // Wait 5 seconds before retrying
-      digitalWrite(LED1, !digitalRead(LED1));
+      digitalWrite(LED1, HIGH);
       delay(2500);
-      digitalWrite(LED1, !digitalRead(LED1));
+      digitalWrite(LED1, LOW);
       delay(2500);
     }    
   }
-  digitalWrite(LED1, LOW);
 }
 
 /**
