@@ -92,7 +92,7 @@ void setup()
   // ESP8266 GPIO0 pin
   pinMode(0, INPUT_PULLUP);
   attachInterrupt(0, enterWifiApMode, FALLING);
-
+  
   // Config LED outputs
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
@@ -119,7 +119,7 @@ void setup()
   }
 
   // Set device ID
-  sprintf(deviceId, "%s %s", apName, gatewayKey);
+  sprintf(deviceId, "%s %s", apName, config.gatewayKey);
 
   // Init UART
   Serial.begin(38400);
@@ -131,9 +131,16 @@ void setup()
     WiFi.begin(config.ssid, config.password);
 
     #ifdef DEBUG_ENABLED
+    Serial.println(config.ssid);
+    Serial.println(config.password);
+    Serial.println(config.userKey);
+    Serial.println(config.gatewayKey);
+    Serial.println(config.latitude);
+    Serial.println(config.longitude);
+
     Serial.print("\n\r \n\rWorking to connect");
     #endif
-  
+
     // Wait for connection
     while ((WiFi.status() != WL_CONNECTED) && (!enterApMode))
     {
