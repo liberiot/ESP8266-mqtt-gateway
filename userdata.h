@@ -63,7 +63,7 @@ const char LIBERIOT_TOPIC_MAIN[] = "liberiot";  // Main MQTT topic
  * Default WiFi Access Point settings
  */
 const char apPassword[] = "liberiot";
-const char apName[] = "LIBERiot WiFi gateway";
+const char apName[] = "LIBERiot";
 
 /**
  * Class: USERDATA
