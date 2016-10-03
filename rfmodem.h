@@ -48,15 +48,6 @@ class RFMODEM
      */
     uint8_t rxLength;
 
-    /**
-     * strToHex
-     *
-     * @param buf Hex byte as a char array
-     *
-     * @return Hex byte
-     */
-    uint8_t charToHex(char *buf);
-
   public:
     /**
      * Class constructor

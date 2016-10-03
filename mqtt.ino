@@ -171,7 +171,7 @@ void mqttSend(char *buffer)
 }
 
 /**
- * mqttRgbReceive
+ * mqttReceive
  * 
  * Function called whenever a MQTT packet is received
  * 

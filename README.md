@@ -10,7 +10,7 @@ GWAP is the protocol used between low-power wireless motes and gateways. This pr
 
 ## WiFi
 
-Press the GPIO0 button to put the gateway in Access Point mode. After this connect to the new "LIBERiot WiFi gateway" WiFi network from a computer and send a HTTP GET request with the following format:
+Press the GPIO0 button to put the gateway in Access Point mode. After this connect to the new "LIBERiot WiFi gateway" WiFi network from a computer (password "liberiot") and send a HTTP GET request with the following format:
 
 http://192.168.4.1/setnet?ssid=your_ssid&pwd=your_password
 
