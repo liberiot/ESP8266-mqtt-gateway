@@ -40,7 +40,11 @@
 /**
  * Modem reset line
  */
+#ifdef __NRG_VERSION_3_0__
+#define MODEM_RESET_LINE  14
+#else
 #define MODEM_RESET_LINE  15
+#endif
 
 /**
  * LED pins
