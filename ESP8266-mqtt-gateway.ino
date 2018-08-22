@@ -40,17 +40,22 @@
 /**
  * Modem reset line
  */
-#ifdef __NRG_VERSION_3_0__
-#define MODEM_RESET_LINE  14
-#else
 #define MODEM_RESET_LINE  15
-#endif
 
 /**
  * LED pins
  */
+#ifdef ARDUINO_ESP8266_NODEMCU
+#define LED1    2
+#define LED2    16
+#define DRIVE_LED1(state)  digitalWrite(LED1, !state)
+#define DRIVE_LED2(state)  digitalWrite(LED2, !state)
+#else
 #define LED1    5
 #define LED2    4
+#define DRIVE_LED1(state)  digitalWrite(LED1, state)
+#define DRIVE_LED2(state)  digitalWrite(LED2, state)
+#endif
 
 /**
  * User config
@@ -101,6 +106,9 @@ void setup()
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
 
+  DRIVE_LED1(LOW);
+  DRIVE_LED2(LOW);
+
   // Initialize config (pseudo-EEPROM) space
   config.begin();
 
@@ -135,6 +143,7 @@ void setup()
     WiFi.begin(config.ssid, config.password);
 
     #ifdef DEBUG_ENABLED
+    Serial.println("");
     Serial.println(config.ssid);
     Serial.println(config.password);
     Serial.println(config.userKey);
@@ -158,7 +167,7 @@ void setup()
       Serial.print("");  // Keep this blank character printing to make this loop work!!
     }
 
-    digitalWrite(LED1, LOW);
+    DRIVE_LED1(LOW);
 
     if (WiFi.status() == WL_CONNECTED)
     {
@@ -225,7 +234,7 @@ void loop()
     apMode = true;
     setupWiFiAP();
     initWebServer();
-    digitalWrite(LED2, HIGH);
+    DRIVE_LED2(HIGH);
   }
   else
   {

@@ -117,9 +117,9 @@ void mqttReconnect()
       #endif
       
       // Wait 5 seconds before retrying
-      digitalWrite(LED1, HIGH);
+      DRIVE_LED1(HIGH);
       delay(2500);
-      digitalWrite(LED1, LOW);
+      DRIVE_LED1(LOW);
       delay(2500);
     }    
   }
